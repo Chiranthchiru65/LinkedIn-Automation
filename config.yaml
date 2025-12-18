@@ -1,0 +1,12 @@
+# config.yaml
+target:
+  keywords: "Software Engineer"
+  location: "Bangalore"
+
+connection:
+  message_template: "Hi {{FirstName}}, I saw your profile and..."
+  limit_per_day: 10
+
+settings:
+  headless: false # false = Show the browser
+  stealth_mode: true
