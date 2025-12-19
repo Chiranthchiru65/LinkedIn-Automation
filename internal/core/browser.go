@@ -15,32 +15,39 @@ type Browser struct {
 }
 
 // NewBrowser initializes a chrome instance with stealth settings
+// internal/core/browser.go
+
+// internal/core/browser.go
+
 func NewBrowser(headless bool) (*Browser, error) {
         fmt.Println("🚀 Core: Initializing Stealth Browser...")
+
         l := launcher.New().
                 Headless(headless).
-                Leakless(false). // set true if you want Rod to guard against orphaned Chrome
+                Leakless(false).
                 Delete("enable-automation").
                 Set("disable-blink-features", "AutomationControlled").
-                Set("window-size", "1920,1080")
+                Set("window-size", "1920,1080").
+                Set("user-data-dir", `C:\temp\rod-profile`). // avoid profile lock
+                Bin(`C:\Program Files\Google\Chrome\Application\chrome.exe`)
 
+        fmt.Println("🔧 Launching Chrome...")
         url, err := l.Launch()
         if err != nil {
                 return nil, fmt.Errorf("failed to launch browser: %w", err)
         }
+        fmt.Println("✅ Chrome launched:", url)
 
-        // 2. Connect to the browser
-        browser := rod.New().ControlURL(url).MustConnect()
+        fmt.Println("🔌 Connecting to Chrome...")
+        browser := rod.New().ControlURL(url)
+        if err := browser.Connect(); err != nil {
+                return nil, fmt.Errorf("failed to connect: %w", err)
+        }
 
-        // 3. Create a new tab and inject stealth scripts
         page := stealth.MustPage(browser)
-
         fmt.Println("🎭 Core: Stealth scripts injected.")
 
-        return &Browser{
-                RodBrowser: browser,
-                Page:       page,
-        }, nil
+        return &Browser{RodBrowser: browser, Page: page}, nil
   }
 
 // Close cleans up resources
