@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"linkedin-automation/internal/stealth"
@@ -11,49 +12,56 @@ import (
 )
 
 func Login(page *rod.Page, username, password string) error {
-	fmt.Println("🔑 Auth: Starting login flow...")
+	fmt.Println("🔑 Auth: Checking login status...")
 	
-	// 1. Navigate
-	page.MustNavigate("https://www.linkedin.com/login")
+	// 1. Navigate to Home
+	// If cookies are valid, this redirects straight to /feed
+	page.MustNavigate("https://www.linkedin.com/")
 	page.MustWaitLoad()
 	
-	// 2. HUMAN REACTION TIME (Critical for Autofocus)
-	// We wait 2-4 seconds. A bot types instantly. A human looks at the screen.
+	// 2. CHECK: Are we already logged in?
+	// We check if the URL contains "feed" OR if the main profile icon exists
+	// We wait briefly (2s) to see where the redirect lands us
+	time.Sleep(2 * time.Second)
+
+	currentURL := page.MustInfo().URL
+	if strings.Contains(currentURL, "feed") || strings.Contains(currentURL, "miniprofile") {
+		fmt.Println("✅ Auth: Already logged in! Skipping credentials.")
+		return nil
+	}
+
+	// 3. If not on feed, we must be on login (or forced to login page)
+	// Ensure we are explicitly on the login page now
+	if !strings.Contains(currentURL, "login") {
+		page.MustNavigate("https://www.linkedin.com/login")
+		page.MustWaitLoad()
+	}
+	
+	// --- START EXISTING LOGIN LOGIC ---
+	
 	fmt.Println("   - Page loaded. Human reaction pause...")
 	reactionTime := time.Duration(rand.Intn(2000)+2000) * time.Millisecond
 	time.Sleep(reactionTime)
 
-	// 3. TYPE USERNAME (No Mouse Move needed!)
-	// The cursor is already blinking here.
 	fmt.Println("   - Typing username...")
 	userField := page.MustElement("#username")
 	stealth.HumanTyping(userField, username)
 
-	// Pause: "Thinking" about the password
 	time.Sleep(time.Millisecond * 700)
 
-	// 4. PASSWORD (Move -> Click -> Type)
 	fmt.Println("   - Moving mouse to password field...")
 	passField := page.MustElement("#password")
-	
-	// This will curve from Top-Left (0,0) to the Password Box
 	stealth.MoveTo(page, passField) 
 	stealth.ClickWithRandomDelay(page)
-	
 	stealth.HumanTyping(passField, password)
 
-	// Pause: Visually checking the button
 	time.Sleep(time.Millisecond * 500)
 
-	// 5. SUBMIT (Move -> Click)
 	fmt.Println("   - Moving mouse to login button...")
 	loginBtn := page.MustElement("button[type='submit']")
-	
-	// This will curve from Password Box to Submit Button
 	stealth.MoveTo(page, loginBtn)
 	stealth.ClickWithRandomDelay(page)
 
-	// 6. Wait for Login Success
 	fmt.Println("✅ Auth: Credentials submitted. Waiting for navigation...")
 	time.Sleep(5 * time.Second)
 	
