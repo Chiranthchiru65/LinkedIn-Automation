@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"linkedin-automation/internal/auth" // <--- Import the Auth module
 	"linkedin-automation/internal/config"
 	"linkedin-automation/internal/core"
+	outreach "linkedin-automation/internal/outreact"
 	"linkedin-automation/internal/search"
 )
 
@@ -54,12 +56,30 @@ func main() {
 
 	fmt.Println("------------------------------------------------")
 	fmt.Printf("🎉 HARVEST COMPLETE! Found %d leads:\n", len(leads))
-	for i, l := range leads {
-		fmt.Printf("%d. %s - %s\n", i+1, l.Name, l.ProfileURL)
-	}
-	fmt.Println("------------------------------------------------")
+	for i, lead := range leads {
+		// Safety Limit: Only try 2 people for this test run
+		if i >= 2 { 
+			break 
+		}
 
-	fmt.Println("🛑 Pausing for inspection...")
+		fmt.Printf("\n--- Processing Lead %d/%d: %s ---\n", i+1, len(leads), lead.Name)
+
+		// Create a personalized message
+		// Note: LinkedIn limits notes to 300 chars
+		message := fmt.Sprintf("Hi %s, I found your profile while searching for Software Engineers in Bangalore. I am building a Golang automation tool and would love to connect!", lead.Name)
+
+		// Execute the connection logic
+		err := outreach.Connect(linkedinBot.Page, lead, message)
+		if err != nil {
+			fmt.Printf("⚠️ %v\n", err)
+		} else {
+			fmt.Println("✅ Success: Connection sequence completed.")
+		}
+
+		// COOLDOWN: Wait 10 seconds before the next person
+		fmt.Println("⏳ Cooling down...")
+		time.Sleep(10 * time.Second)
+	}
 
 	// 4. Block Forever (Success State)
 	fmt.Println("🎉 Login Sequence Finished!")
