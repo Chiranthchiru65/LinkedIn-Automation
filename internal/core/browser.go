@@ -20,7 +20,7 @@ type Browser struct {
 // internal/core/browser.go
 
 func NewBrowser(headless bool) (*Browser, error) {
-        fmt.Println("🚀 Core: Initializing Stealth Browser...")
+        fmt.Println("Core: Initializing Stealth Browser...")
 
         l := launcher.New().
                 Headless(headless).
@@ -31,21 +31,21 @@ func NewBrowser(headless bool) (*Browser, error) {
                 Set("user-data-dir", `C:\temp\rod-profile`). // avoid profile lock
                 Bin(`C:\Program Files\Google\Chrome\Application\chrome.exe`)
 
-        fmt.Println("🔧 Launching Chrome...")
+        fmt.Println(" Launching Chrome...")
         url, err := l.Launch()
         if err != nil {
                 return nil, fmt.Errorf("failed to launch browser: %w", err)
         }
-        fmt.Println("✅ Chrome launched:", url)
+        fmt.Println(" Chrome launched:", url)
 
-        fmt.Println("🔌 Connecting to Chrome...")
+        fmt.Println(" Connecting to Chrome...")
         browser := rod.New().ControlURL(url)
         if err := browser.Connect(); err != nil {
                 return nil, fmt.Errorf("failed to connect: %w", err)
         }
 
         page := stealth.MustPage(browser)
-        fmt.Println("🎭 Core: Stealth scripts injected.")
+        fmt.Println(" Core: Stealth scripts injected.")
 
         return &Browser{RodBrowser: browser, Page: page}, nil
   }

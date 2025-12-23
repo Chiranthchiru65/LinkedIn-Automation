@@ -41,13 +41,13 @@ func (s *SearchEngine) Run() ([]models.Lead, error) {
 
 	// 1. Navigate
 	targetURL := s.GenerateSearchURL()
-	fmt.Printf("🔍 Search: Navigating to %s\n", targetURL)
+	fmt.Printf(" Search: Navigating to %s\n", targetURL)
 	s.Page.MustNavigate(targetURL)
 	s.Page.MustWaitLoad()
 
 	// 2. WAIT for the Main Container (Based on your screenshot)
 	// We use the stable "search-results-container" class
-	fmt.Println("⏳ Waiting for search container...")
+	fmt.Println(" Waiting for search container...")
 	
 	containerSelector := ".search-results-container"
 	
@@ -70,7 +70,7 @@ func (s *SearchEngine) Run() ([]models.Lead, error) {
 		return nil, fmt.Errorf("container found, but no 'li' items: %v", err)
 	}
 
-	fmt.Printf("✅ Found %d list items. Parsing structure...\n", len(items))
+	fmt.Printf(" Found %d list items. Parsing structure...\n", len(items))
 
 	// 5. Iterate and Extract using "Link Logic"
 	for _, item := range items {

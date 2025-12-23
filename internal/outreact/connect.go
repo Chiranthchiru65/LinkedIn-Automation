@@ -14,7 +14,7 @@ import (
 
 // Connect visits a profile and sends a connection request
 func Connect(page *rod.Page, lead models.Lead, note string) error {
-	fmt.Printf("🏃 Outreach: Visiting %s...\n", lead.Name)
+	fmt.Printf(" Outreach: Visiting %s...\n", lead.Name)
 	
 	page.MustNavigate(lead.ProfileURL)
 	page.MustWaitLoad()
@@ -110,13 +110,12 @@ func Connect(page *rod.Page, lead models.Lead, note string) error {
 				fmt.Println("   - Found Send button. Sending request...")
 				stealth.MoveTo(page, sendBtn)
 				
-				// 🔥🔥 THE SAFETY LOCK IS OFF! THIS WILL REALLY SEND! 🔥🔥
 				stealth.ClickWithRandomDelay(page) 
 				
-				fmt.Println("   ✅ Connection Request SENT!")
+				fmt.Println("   Connection Request SENT!")
 				time.Sleep(2 * time.Second) // Wait for modal to close
 			} else {
-				fmt.Println("   ⚠️ Error: Could not find 'Send' button!")
+				fmt.Println("    Error: Could not find 'Send' button!")
 			}
 		}
 	} else {
@@ -127,7 +126,7 @@ func Connect(page *rod.Page, lead models.Lead, note string) error {
              if sendBtn != nil {
                  stealth.MoveTo(page, sendBtn)
                  stealth.ClickWithRandomDelay(page)
-                 fmt.Println("   ✅ Connection Request SENT!")
+                 fmt.Println("    Connection Request SENT!")
              }
         } else {
 		     fmt.Println("   - No 'Add Note' flow detected. Request might be sent.")

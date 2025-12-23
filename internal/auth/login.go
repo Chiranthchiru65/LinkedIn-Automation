@@ -13,7 +13,7 @@ import (
 
 // Login performs the authentication flow with stealth and error handling
 func Login(page *rod.Page, username, password string) error {
-	fmt.Println("🔑 Auth: Checking login status...")
+	fmt.Println(" Auth: Checking login status...")
 	
 	// --- PHASE 1: SMART SESSION CHECK ---
 	// 1. Navigate to Home (not login) to test cookies
@@ -24,7 +24,7 @@ func Login(page *rod.Page, username, password string) error {
 
 	currentURL := page.MustInfo().URL
 	if strings.Contains(currentURL, "feed") || strings.Contains(currentURL, "miniprofile") {
-		fmt.Println("✅ Auth: Already logged in! (Cookies detected).")
+		fmt.Println(" Auth: Already logged in! (Cookies detected).")
 		return nil
 	}
 
@@ -71,7 +71,7 @@ func Login(page *rod.Page, username, password string) error {
 
 	// --- PHASE 3: VERIFICATION & SECURITY CHECK ---
 	
-	fmt.Println("⏳ Auth: Credentials submitted. Verifying state...")
+	fmt.Println(" Auth: Credentials submitted. Verifying state...")
 	
 	// We verify the result for up to 15 seconds
 	for i := 0; i < 15; i++ {
@@ -80,21 +80,21 @@ func Login(page *rod.Page, username, password string) error {
 		
 		// A. SUCCESS: Reached Feed
 		if strings.Contains(url, "feed") || strings.Contains(url, "miniprofile") {
-			fmt.Println("✅ Auth: Login Successful! We are on the feed.")
+			fmt.Println(" Auth: Login Successful! We are on the feed.")
 			return nil
 		}
 
 		// B. CHALLENGE: 2FA or Captcha
 		if strings.Contains(url, "challenge") || strings.Contains(url, "checkpoint") {
-			fmt.Println("⚠️  Auth: Security Checkpoint Detected! (2FA/Captcha)")
-			fmt.Println("🛑  ACTION REQUIRED: Please solve it manually in the browser window.")
-			fmt.Println("⏳ Pausing bot until you solve it...")
+			fmt.Println("  Auth: Security Checkpoint Detected! (2FA/Captcha)")
+			fmt.Println("  ACTION REQUIRED: Please solve it manually in the browser window.")
+			fmt.Println(" Pausing bot until you solve it...")
 			
 			// Infinite loop: Wait until user solves it and reaches feed
 			for {
 				time.Sleep(2 * time.Second)
 				if strings.Contains(page.MustInfo().URL, "feed") {
-					fmt.Println("✅ Checkpoint passed! Resuming...")
+					fmt.Println(" Checkpoint passed! Resuming...")
 					return nil
 				}
 			}
@@ -103,9 +103,9 @@ func Login(page *rod.Page, username, password string) error {
 		// C. FAILURE: Wrong Password Alert
 		// We use Has() to check without crashing if it's missing
 		if has, _,_ := page.Has("#error-for-password"); has {
-			return fmt.Errorf("❌ Auth Failed: Invalid Credentials detected")
+			return fmt.Errorf(" Auth Failed: Invalid Credentials detected")
 		}
 	}
 
-	return fmt.Errorf("❌ Auth Timeout: Login took too long or unknown state")
+	return fmt.Errorf(" Auth Timeout: Login took too long or unknown state")
 }
